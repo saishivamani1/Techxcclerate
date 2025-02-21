@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Host an Event Form</title>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: rgb(101,74,91);
+      background: linear-gradient(90deg, rgba(101,74,91,1) 0%, rgba(144,97,101,1) 25%, rgba(202,123,116,1) 50%, rgba(216,138,120,1) 75%, rgba(229,147,125,1) 100%);
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 20px;
+      margin: auto;
+      border-radius: 15px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    h4 {
+      color: #fff;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+      color: #fff;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="number"],
+    .form-group input[type="datetime-local"],
+    .form-group input[type="file"],
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.3);
+      color: #fff;
+      box-sizing: border-box;
+    }
+
+    .form-group input[type="file"] {
+      padding: 8px;
+    }
+
+    .form-group input[type="file"]::file-selector-button {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+      color: white;
+      padding: 8px 16px;
+      margin-right: 16px;
+      cursor: pointer;
+    }
+
+    .form-group input[type="file"]::file-selector-button:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    
+    textarea {
+      resize: vertical;
+    }
+    
+    .terms-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .terms-container input[type="checkbox"] {
+      margin: 0;
+    }
+    
+    .terms-container label {
+      display: inline;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .terms-container label span {
+      text-decoration: underline;
+      color: #fff;
+    }
+    
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    .modal-content {
+      position: relative;
+      background: rgba(255, 255, 255, 0.95);
+      margin: 15% auto;
+      padding: 20px;
+      width: 80%;
+      max-width: 600px;
+      border-radius: 10px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-content p {
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+
+    .close {
+      position: absolute;
+      right: 20px;
+      top: 10px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #333;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: #000;
+    }
+
+    /* Button Styles */
+    .button {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 12.5rem;
+      margin: 20px auto;
+      padding: 1.5rem 3.125rem;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 0.3125rem; 
+      box-shadow: 0 12px 24px 0 rgba(0,0,0,0.2);
+      color: white;
+      font-weight: 300;
+      text-transform: uppercase;
+      overflow: hidden;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+    }
+    
+    .button:before {
+      position: absolute;
+      content: '';
+      bottom: 0;
+      left: 0;
+      width: 0%;
+      height: 100%;
+      background-color: #54d88d;
+    }
+    
+    .button span {
+      position: absolute;
+      line-height: 0;
+    }
+    
+    .button span.submit {
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    
+    .button span.loading {
+      top: 100%;
+      transform: translateY(0%);
+      font-size: 24px;
+    }
+    
+    .button span.check {
+      display: none;
+    }
+    
+    .button.active {
+      background-color: #2ecc71;
+    }
+    
+    .button.active:before {
+      width: 100%;
+      transition: width 3s linear;
+    }
+    
+    .button.active span.submit {
+      top: -100%;
+      transform: translateY(-50%);
+    }
+    
+    .button.active span.loading {
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    
+    .button.active span.loading i {
+      animation: loading 500ms linear infinite;
+    }
+    
+    .button.finished {
+      background-color: #54d88d;
+    }
+    
+    .button.finished span.submit {
+      display: none;
+    }
+    
+    .button.finished span.loading {
+      display: none;
+    }
+    
+    .button.finished span.check {
+      display: block;
+      font-size: 24px;
+      animation: scale 0.5s linear;
+    }
+    
+    .button.finished span.check i {
+      transform-origin: center center;
+    }
+    
+    @keyframes loading {
+      100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes scale {
+      0%   { transform: scale(10); }
+      50%  { transform: scale(0.2); }
+      70%  { transform: scale(1.2); }
+      90%  { transform: scale(0.7); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <form id="eventForm" enctype="multipart/form-data">
+      <!-- Event Details -->
+      <div class="form-group">
+        <h4>Event Details</h4>
+        <label>Event Name</label>
+        <input type="text" name="eventName" placeholder="Event Name" required>
+        <label>Event Category</label>
+        <input type="text" name="eventCategory" placeholder="Event Category" required>
+        <label>Event Description</label>
+        <textarea name="eventDescription" placeholder="Short Description" required></textarea>
+        <label>Event Poster</label>
+        <input type="file" name="eventPoster" accept="image/*" required>
+        <label>Event Date & Time</label>
+        <input type="datetime-local" name="eventDateTime" required>
+        <label>Event Location</label>
+        <input type="text" name="eventLocation" placeholder="Venue Address or Virtual Link" required>
+      </div>
+      <!-- Organizer Details -->
+      <div class="form-group">
+        <h4>Organizer Details</h4>
+        <label>Host Name/Organization</label>
+        <input type="text" name="hostName" placeholder="Host Name" required>
+        <label>Contact Email</label>
+        <input type="email" name="contactEmail" placeholder="Email Address" required>
+        <label>Phone Number</label>
+        <input type="text" name="phoneNumber" placeholder="Phone Number" required>
+      </div>
+      <!-- Ticketing & Pricing -->
+      <div class="form-group">
+        <h4>Ticketing & Pricing</h4>
+        <label>Ticket Price</label>
+        <input type="text" name="ticketPrice" placeholder="Free or Paid" required>
+        <label>Ticket Quantity</label>
+        <input type="number" name="ticketQuantity" placeholder="Total Tickets Available" required>
+      </div>
+      <!-- Terms and Conditions -->
+      <div class="form-group">
+        <h4>Terms and Conditions</h4>
+        <div class="terms-container">
+          <input type="checkbox" id="terms" name="termsAccepted" required>
+          <label for="terms">I accept the <span id="openTerms">terms and conditions</span></label>
+        </div>
+      </div>
+      <!-- Animated Submit Button -->
+      <button type="button" id="submitButton" class="button">
+        <span class="submit">Submit</span>
+        <span class="loading"><i class="fa fa-refresh"></i></span>
+        <span class="check"><i class="fa fa-check"></i></span>
+      </button>
+    </form>
+  </div>
+
+  <!-- Terms and Conditions Modal -->
+  <div id="termsModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h4 style="color: #333;">Terms and Conditions</h4>
+      <p>By hosting an event, I confirm that:</p>
+      <p>I am responsible for the accuracy of event details and compliance with legal requirements.</p>
+      <p>I have obtained all necessary permits and rights for the event.</p>
+      <p>I will handle ticketing, refunds, and attendee safety per platform guidelines.</p>
+      <p>I will not misuse attendee data or engage in fraudulent activities.</p>
+      <p>SEVEN SINS is not liable for any disputes, damages, or event-related issues.</p>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      const button = document.querySelector('#submitButton');
+      const modal = document.getElementById("termsModal");
+      const openTerms = document.getElementById("openTerms");
+      const closeBtn = document.querySelector(".close");
+      const form = document.getElementById("eventForm");
+      
+      // Modal functionality
+      openTerms.onclick = function(e) {
+        e.preventDefault();
+        modal.style.display = "block";
+      }
+
+      closeBtn.onclick = function() {
+        modal.style.display = "none";
+      }
+
+      window.onclick = function(event) {
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      }
+      
+      // Form validation
+      function validateForm() {
+        // Check if form is valid
+        const inputs = form.querySelectorAll('input[required], textarea[required]');
+        for (let input of inputs) {
+          if (!input.value.trim()) {
+            return false;
+          }
+        }
+        // Ensure image is selected
+        const fileInput = form.querySelector('input[type="file"]');
+        if (!fileInput.files || !fileInput.files[0]) {
+          return false;
+        }
+        // Check if terms checkbox is checked
+        if (!document.getElementById('terms').checked) {
+          return false;
+        }
+        return true;
+      }
+      
+      // Button animation functionality
+      function startAnimation() {
+        button.classList.remove('finished');
+        button.classList.add('active');
+      }
+      
+      function finishAnimation() {
+        button.classList.remove('active');
+        button.classList.add('finished');
+      }
+      
+      // Form submission with file handling
+      function submitForm() {
+        const formData = new FormData(form);
+        
+        fetch('/addevent', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Success:', data);
+          finishAnimation();
+          
+          // Add a slight delay before redirecting to dashboard
+          setTimeout(function() {
+            window.location.href = "/dashboard";
+          }, 1500);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          button.classList.remove('active');
+          alert('There was an error submitting your event. Please try again.');
+        });
+      }
+      
+      // Button click event
+      button.addEventListener('click', function() {
+        if (validateForm()) {
+          startAnimation();
+          // Submit the form after a brief delay to allow animation to start
+          setTimeout(submitForm, 500);
+        } else {
+          alert('Please fill in all required fields, upload an event poster, and accept the terms and conditions.');
+        }
+      });
+      
+      // Animation transition end
+      button.addEventListener('transitionend', function(e) {
+        if (e.propertyName === 'width' && button.classList.contains('active')) {
+          // This will only execute if the request hasn't completed yet
+          // The actual completion state is handled in the fetch promise
+        }
+      });
+    });
+  </script>
+</body>
+</html>
