@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EVENTS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300&display=swap" rel="stylesheet" />
+    <style>
+        /* Global & Navigation Styles */
+        :root {
+            --primary-gradient: linear-gradient(90deg, rgba(101, 74, 91, 1) 0%, rgba(144, 97, 101, 1) 25%, rgba(202, 123, 116, 1) 50%, rgba(216, 138, 120, 1) 75%, rgba(229, 147, 125, 1) 100%);
+            --btn-border-color: rgba(144, 97, 101, 1);
+            --btn-blob-color: rgba(202, 123, 116, 1);
+            --btn-text-color: rgba(101, 74, 91, 1);
+            --btn-inner-bg: rgba(229, 147, 125, 1);
+            --btn-hover-text-color: #FFFFFF;
+            --card-btn-primary: rgba(202, 123, 116, 1);
+            --card-btn-secondary: rgba(101, 74, 91, 1);
+        }
+
+        *,
+        *:before,
+        *:after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--primary-gradient);
+            font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        /* Blob Button Styles */
+        .blob-btn {
+            position: relative;
+            padding: 10px 20px;
+            text-align: center;
+            text-transform: uppercase;
+            color: var(--btn-text-color);
+            font-size: 14px;
+            font-weight: bold;
+            background-color: transparent;
+            outline: none;
+            border: none;
+            transition: color 0.5s;
+            cursor: pointer;
+            border-radius: 30px;
+        }
+
+        .blob-btn:before {
+            content: "";
+            position: absolute;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--btn-border-color);
+            border-radius: 30px;
+        }
+
+        .blob-btn:after {
+            content: "";
+            position: absolute;
+            z-index: -2;
+            left: 3px;
+            top: 3px;
+            width: 100%;
+            height: 100%;
+            transition: all 0.3s 0.2s;
+            border-radius: 30px;
+        }
+
+        .blob-btn:hover {
+            color: var(--btn-hover-text-color);
+        }
+
+        .blob-btn:hover:after {
+            left: 0;
+            top: 0;
+            transition: all 0.3s;
+        }
+
+        .blob-btn__inner {
+            position: absolute;
+            z-index: -1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            border-radius: 30px;
+            background: var(--btn-inner-bg);
+        }
+
+        .blob-btn__blobs {
+            position: relative;
+            display: block;
+            height: 100%;
+            filter: url("#goo");
+        }
+
+        .blob-btn__blob {
+            position: absolute;
+            top: 2px;
+            width: 25%;
+            height: 100%;
+            background: var(--btn-blob-color);
+            border-radius: 100%;
+            transform: translate3d(0, 150%, 0) scale(1.7);
+            transition: transform 0.45s;
+        }
+
+        @supports (filter: url("#goo")) {
+            .blob-btn__blob {
+                transform: translate3d(0, 150%, 0) scale(1.4);
+            }
+        }
+
+        .blob-btn__blob:nth-child(1) {
+            left: 0%;
+            transition-delay: 0s;
+        }
+
+        .blob-btn__blob:nth-child(2) {
+            left: 30%;
+            transition-delay: 0.08s;
+        }
+
+        .blob-btn__blob:nth-child(3) {
+            left: 60%;
+            transition-delay: 0.16s;
+        }
+
+        .blob-btn__blob:nth-child(4) {
+            left: 90%;
+            transition-delay: 0.24s;
+        }
+
+        .blob-btn:hover .blob-btn__blob {
+            transform: translateZ(0) scale(1.7);
+        }
+
+        @supports (filter: url("#goo")) {
+            .blob-btn:hover .blob-btn__blob {
+                transform: translateZ(0) scale(1.4);
+            }
+        }
+
+        /* Cards Section - Updated for side by side layout */
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            flex-wrap: wrap;
+            gap: 30px;
+            padding: 20px;
+            margin-top: 120px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Card Styles */
+        .card {
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            filter: drop-shadow(0 30px 10px rgba(0, 0, 0, 0.125));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 300px;
+            min-height: 400px;
+        }
+
+        .card .wrapper {
+            width: 100%;
+            flex-grow: 1;
+        }
+
+        .card .banner-image {
+            height: 200px;
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.255);
+            background-position: center;
+            background-size: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .card h1 {
+            font-family: 'Righteous', sans-serif;
+            color: white;
+            font-size: 1.6rem;
+            margin: 20px 0 10px;
+        }
+
+        .card p {
+            color: rgba(255, 255, 255, 0.9);
+            font-family: 'Lato', sans-serif;
+            font-size: 0.9rem;
+            line-height: 150%;
+            margin: 0;
+        }
+
+        .card .button-wrapper {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .card .btn {
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-weight: bold;
+            min-width: 100px;
+        }
+
+        .card .outline {
+            background: transparent;
+            color: var(--card-btn-secondary);
+            border: 2px solid var(--card-btn-secondary);
+        }
+
+        .card .outline:hover {
+            background: var(--card-btn-secondary);
+            color: white;
+        }
+
+        .card .fill {
+            background: var(--card-btn-primary);
+            color: white;
+            border: none;
+        }
+
+        .card .fill:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Event details */
+        .event-details {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 10px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .event-details .detail {
+            display: flex;
+            align-items: flex-start;
+            font-size: 0.85rem;
+        }
+
+        .event-details .detail strong {
+            min-width: 80px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Loading message */
+        .loading {
+            text-align: center;
+            color: white;
+            font-family: 'Righteous', sans-serif;
+            font-size: 1.5rem;
+            margin-top: 200px;
+        }
+
+        /* Responsive layout */
+        @media (max-width: 992px) {
+            .cards-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .card {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Buttons -->
+    <div class="nav-buttons">
+        <a href="full.html">
+            <button class="blob-btn">
+                Home
+                <span class="blob-btn__inner">
+                    <span class="blob-btn__blobs">
+                        <span class="blob-btn__blob"></span>
+                        <span class="blob-btn__blob"></span>
+                        <span class="blob-btn__blob"></span>
+                        <span class="blob-btn__blob"></span>
+                    </span>
+                </span>
+            </button>
+        </a>
+        <a href="explore.html">
+            <button class="blob-btn">
+                Events
+                <span class="blob-btn__inner">
+                    <span class="blob-btn__blobs">
+                        <span class="blob-btn__blob"></span>
+                        <span class="blob-btn__blob"></span>
+                        <span class="blob-btn__blob"></span>
+                        <span class="blob-btn__blob"></span>
+                    </span>
+                </span>
+            </button>
+        </a>
+        <a href="mybookings.html">
+            <button class="blob-btn">
+                My Bookings
+                <span class="blob-btn__inner">
+                    <span class="blob-btn__blobs">
+                        <span class="blob-btn__blob"></span>
+                        <span class="blob-btn__blob"></span>
+                        <span class="blob-btn__blob"></span>
+                        <span class="blob-btn__blob"></span>
+                    </span>
+                </span>
+            </button>
+        </a>
+        <a href="about.html">
+            <button class="blob-btn">
+                About
+                <span class="blob-btn__inner">
+                    <span class="blob-btn__blobs">
+                        <span class="blob-btn__blob"></span>
+                        <span class="blob-btn__blob"></span>
+                        <span class="blob-btn__blob"></span>
+                        <span class="blob-btn__blob"></span>
+                    </span>
+                </span>
+            </button>
+        </a>
+    </div>
+
+    <!-- SVG Filter -->
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="display: none;">
+        <defs>
+            <filter id="goo">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur"></feGaussianBlur>
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 21 -7"
+                    result="goo"></feColorMatrix>
+                <feBlend in="SourceGraphic" in2="goo" result="mix"></feBlend>
+            </filter>
+        </defs>
+    </svg>
+
+    <!-- Cards Section -->
+    <div id="cards-container" class="cards-container">
+        <div class="loading">Loading events...</div>
+    </div>
+
+    <script>
+        // Fetch events from Flask backend
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('/send_data')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(events => {
+                    displayEvents(events);
+                })
+                .catch(error => {
+                    console.error('Error fetching events:', error);
+                    document.getElementById('cards-container').innerHTML =
+                        '<div class="loading">Error loading events. Please try again later.</div>';
+                });
+        });
+
+        // Function to display event data
+        function displayEvents(events) {
+            const container = document.getElementById('cards-container');
+
+            // Clear loading message
+            container.innerHTML = '';
+
+            // If no events, show message
+            if (!events || events.length === 0) {
+                container.innerHTML = '<div class="loading">No events found</div>';
+                return;
+            }
+
+            // For each event, create a card
+            events.forEach(event => {
+                // Format date and time
+                const eventDate = new Date(event.eventDateTime);
+                const formattedDate = eventDate.toLocaleDateString();
+                const formattedTime = eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                // Create card element
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                // Set poster image or default
+                const posterUrl = event.eventPoster && event.eventPoster.data
+                    ? `data:${event.eventPoster.content_type};base64,${event.eventPoster.data}`
+                    : 'https://images.unsplash.com/photo-1641326201918-3cafc641038e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1887&q=80';
+
+                card.innerHTML = `
+          <div class="wrapper">
+            <div class="banner-image" style="background-image: url('${posterUrl}');"></div>
+            <h1>${event.eventName}</h1>
+            <p>${event.eventDescription}</p>
+            <div class="event-details">
+              <div class="detail">
+                <strong>Category:</strong> ${event.eventCategory}
+              </div>
+              <div class="detail">
+                <strong>Date:</strong> ${formattedDate}
+              </div>
+              <div class="detail">
+                <strong>Time:</strong> ${formattedTime}
+              </div>
+              <div class="detail">
+                <strong>Location:</strong> ${event.eventLocation}
+              </div>
+              <div class="detail">
+                <strong>Price:</strong> $${event.ticketPrice}
+              </div>
+              <div class="detail">
+                <strong>Host:</strong> ${event.hostName}
+              </div>
+            </div>
+          </div>
+          <div class="button-wrapper">
+            <button class="btn fill" onclick="bookEvent('${event.eventID || event.eventName}', '${event.eventName}', ${event.ticketPrice})">Book now</button>
+         
+          </div>
+        `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // Book event function - Updated to submit a form to Flask endpoint
+        function bookEvent(eventID, eventName, ticketPrice) {
+            // Create a form to submit to Flask endpoint
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/bookticket';
+            
+            // Add event data as hidden fields
+            const idField = document.createElement('input');
+            idField.type = 'hidden';
+            idField.name = 'eventID';
+            idField.value = eventID;
+            
+            const nameField = document.createElement('input');
+            nameField.type = 'hidden';
+            nameField.name = 'eventName';
+            nameField.value = eventName;
+            
+            const priceField = document.createElement('input');
+            priceField.type = 'hidden';
+            priceField.name = 'ticketPrice';
+            priceField.value = ticketPrice;
+            
+            // Append fields to form
+            form.appendChild(idField);
+            form.appendChild(nameField);
+            form.appendChild(priceField);
+            
+            // Add form to document body and submit
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        // View event details function
+        function viewEventDetails(eventName) {
+            // You can implement the details view logic here
+            console.log(`Viewing details for: ${eventName}`);
+            // Redirect to details page or open modal
+            window.location.href = `event-details.html?event=${encodeURIComponent(eventName)}`;
+        }
+    </script>
+</body>
+
+</html>
