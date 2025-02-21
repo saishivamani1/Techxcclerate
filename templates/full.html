@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEVEN SINS</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+  <!-- Google Fonts: Comfortaa, Montserrat, and Aurora Pro -->
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Montserrat:wght@700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Aurora+Pro&display=swap" rel="stylesheet" />
+  <style>
+    /* Load Aurora Pro from your OTF file for logo */
+    @font-face {
+      font-family: 'Aurora Pro';
+      src: url('../static/AuroraPro-Regular.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+      font-family: 'Comfortaa', sans-serif;
+      position: relative;
+    }
+    
+    /* BACKGROUND VIDEO with darkening */
+    .video-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      min-width: 100vw;
+      min-height: 100vh;
+      transform: translate(-50%, -50%);
+      z-index: -2;
+      object-fit: cover;
+      filter: brightness(0.7);
+    }
+    
+    /* FIXED HEADER */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 20px 40px;
+      z-index: 12;
+    }
+    
+    .logo {
+      position: absolute;
+      left: 40px;
+      top: 20px;
+      font-family: 'Aurora Pro', sans-serif;
+      font-size: 24px;
+      color: #e08e69;
+    }
+    
+    /* HEADER BUTTONS (blob style) */
+    .header-buttons {
+      position: absolute;
+      right: 40px;
+      top: 20px;
+      display: flex;
+      gap: 15px;
+    }
+    
+    .blob-btn {
+      position: relative;
+      z-index: 1;
+      padding: 10px 20px;
+      text-align: center;
+      text-transform: uppercase;
+      color: #e08e69;
+      font-size: 14px;
+      font-weight: bold;
+      background-color: transparent;
+      border: none;
+      transition: color 0.5s;
+      cursor: pointer;
+      border-radius: 30px;
+    }
+    .blob-btn:before {
+      content: "";
+      position: absolute;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      border: 2px solid #e08e69;
+      border-radius: 30px;
+    }
+    .blob-btn:after {
+      content: "";
+      position: absolute;
+      z-index: -2;
+      left: 3px;
+      top: 3px;
+      width: 100%;
+      height: 100%;
+      transition: all 0.3s 0.2s;
+      border-radius: 30px;
+    }
+    .blob-btn:hover {
+      color: #FFFFFF;
+    }
+    .blob-btn:hover:after {
+      left: 0;
+      top: 0;
+    }
+    .blob-btn__inner {
+      position: absolute;
+      z-index: -1;
+      overflow: hidden;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 30px;
+      background: transparent;
+    }
+    .blob-btn__blobs {
+      position: relative;
+      display: block;
+      height: 100%;
+      filter: url('#goo');
+    }
+    .blob-btn__blob {
+      position: absolute;
+      top: 2px;
+      width: 25%;
+      height: 100%;
+      background: #e08e69;
+      border-radius: 100%;
+      transform: translate3d(0,150%,0) scale(1.4);
+      transition: transform 0.45s;
+    }
+    .blob-btn__blob:nth-child(1) { left: 0%; }
+    .blob-btn__blob:nth-child(2) { left: 30%; }
+    .blob-btn__blob:nth-child(3) { left: 60%; }
+    .blob-btn__blob:nth-child(4) { left: 90%; }
+    .blob-btn:hover .blob-btn__blob {
+      transform: translateZ(0) scale(1.7);
+    }
+    
+    /* INTRO TEXT */
+    .intro-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, 100%);
+      opacity: 0;
+      text-align: center;
+      color: #fff;
+      padding: 20px;
+      max-width: 800px;
+      animation: introSlideUp 1s forwards;
+      animation-delay: 0.5s;
+      z-index: 10;
+    }
+    .intro-text h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+    .intro-text h2 {
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+    .intro-text p {
+      font-size: 18px;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+    @keyframes introSlideUp {
+      0% {
+        transform: translate(-50%, 100%);
+        opacity: 0;
+      }
+      100% {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+      }
+    }
+    
+    /* LIGHT OVERLAY for form */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      display: none;
+      z-index: 11;
+    }
+    
+    /* AUTH FORM (Glassmorphism Card) */
+    form {
+      width: 400px;
+      height: 520px;
+      position: absolute;
+      left: 50%;
+      top: calc(50% + 30px);
+      transform: translate(-50%, -50%);
+      border-radius: 10px;
+      background-color: rgba(255, 255, 255, 0.20);
+      backdrop-filter: blur(8px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 0 40px rgba(255, 255, 255, 0.2);
+      padding: 40px 30px;
+      overflow: hidden;
+      display: none;
+      z-index: 12;
+      animation: slideUp 1s ease-out both;
+    }
+    
+    @keyframes slideUp {
+      0% {
+        transform: translate(-50%, calc(-50% + 100vh));
+        opacity: 0;
+      }
+      100% {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    /* FORM STYLES */
+    form * {
+      font-family: 'Comfortaa', sans-serif;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+      outline: none;
+      border: none;
+    }
+    
+    form h3 {
+      font-size: 30px;
+      font-weight: 500;
+      line-height: 40px;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      margin-top: 15px;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    
+    input {
+      display: block;
+      height: 45px;
+      width: 100%;
+      background-color: rgba(255, 255, 255, 0.07);
+      border-radius: 3px;
+      padding: 0 10px;
+      margin-top: 8px;
+      font-size: 14px;
+      font-weight: 300;
+      color: #ffffff;
+      border: 1px solid transparent;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+    }
+    
+    input:focus {
+      background-color: rgba(255, 255, 255, 0.07);
+      border: 2px solid #c27472;
+      box-shadow: 0 0 5px rgba(66, 57, 88, 0.4);
+      color: #ffffff;
+    }
+    
+    ::placeholder { color: #ffffff; }
+    
+    .password-container { position: relative; }
+    
+    .password-container input { padding-right: 40px; }
+    
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #ffffff;
+    }
+    
+    .forgot-password {
+      display: block;
+      margin-top: 8px;
+      font-size: 13px;
+      color: #ffffff;
+      text-decoration: none;
+      text-align: right;
+    }
+    
+    .forgot-password:hover { text-decoration: underline; }
+    
+    form button {
+      margin-top: 15px;
+      width: 100%;
+      background-color: #ffd6ba;
+      color: #4d4d4d;
+      padding: 12px 0;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    
+    form button:hover { background-color: #ffc7a2; }
+    
+    .social {
+      margin-top: 25px;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .social div {
+      background-color: rgba(255, 255, 255, 0.27);
+      width: 48%;
+      border-radius: 3px;
+      padding: 5px 10px 10px 5px;
+      color: #eaf0fb;
+      text-align: center;
+      transition: background-color 0.3s ease;
+    }
+    
+    .social div:hover { background-color: rgba(255, 255, 255, 0.47); }
+    
+    .social i { margin-right: 4px; }
+    
+    .bottom-text {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
+      color: #ffffff;
+    }
+    
+    .bottom-text a {
+      color: #ffd6ba;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .bottom-text a:hover { text-decoration: underline; }
+    
+    .signup-fields {
+      display: none;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    
+    form.signup .signup-fields { display: block; }
+    
+    form.signup .login-only { display: none; }
+
+    .message {
+      color: #ffffff;
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    
+    .success {
+      color: #4CAF50;
+    }
+    
+    .error {
+      color: #F44336;
+    }
+  </style>
+</head>
+<body>
+  <!-- BACKGROUND VIDEO -->
+  <video class="video-container" autoplay loop muted playsinline>
+    <source src="../static/bg.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
+  
+  <!-- FIXED HEADER -->
+  <div class="header">
+    <div class="logo">seven sins</div>
+    <div class="header-buttons">
+      <button id="loginBtn" class="blob-btn">
+        Login
+        <span class="blob-btn__inner">
+          <span class="blob-btn__blobs">
+            <span class="blob-btn__blob"></span>
+            <span class="blob-btn__blob"></span>
+            <span class="blob-btn__blob"></span>
+            <span class="blob-btn__blob"></span>
+          </span>
+        </span>
+      </button>
+      <button id="signupBtn" class="blob-btn">
+        Sign Up
+        <span class="blob-btn__inner">
+          <span class="blob-btn__blobs">
+            <span class="blob-btn__blob"></span>
+            <span class="blob-btn__blob"></span>
+            <span class="blob-btn__blob"></span>
+            <span class="blob-btn__blob"></span>
+          </span>
+        </span>
+      </button>
+    </div>
+  </div>
+  
+  <!-- INTRO TEXT -->
+  <div class="intro-text">
+    <h1>Seamless. Secure. Smart.</h1>
+    <h2>🚀 Welcome to the Future of Event Ticketing</h2>
+    <p>Hosting or attending an event has never been this secure and hassle-free! Our AI-powered system eliminates fraud, ensures seamless access, and enhances your experience.</p>
+    <p>Experience tamper-proof tickets, instant entry, and effortless event management.</p>
+  </div>
+  
+  <!-- LIGHT OVERLAY -->
+  <div class="overlay" id="overlay"></div>
+  
+  <!-- AUTH FORM -->
+  <form id="authForm">
+    <h3 id="formTitle">Login Here</h3>
+    <label for="username">Username or Email</label>
+    <input type="text" placeholder="Enter your email or username" id="username" name="username" />
+    <label for="password">Password</label>
+    <div class="password-container">
+      <input type="password" placeholder="Enter your password" id="password" name="password" />
+      <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+    </div>
+    <div class="signup-fields">
+      <label for="confirmPassword">Confirm Password</label>
+      <div class="password-container">
+        <input type="password" placeholder="Confirm your password" id="confirmPassword" name="confirmPassword" />
+        <i class="fas fa-eye toggle-password" id="toggleConfirmPassword"></i>
+      </div>
+    </div>
+    <a href="#" class="forgot-password login-only" id="forgotPasswordLink">Forgot Password?</a>
+    <button type="button" id="submitButton">Log In</button>
+    <div id="auth-message" class="message"></div>
+    <div class="social">
+      <div class="go"><i class="fab fa-google"></i> Google</div>
+      <div class="fb"><i class="fab fa-facebook"></i> Facebook</div>
+    </div>
+    <p class="bottom-text">
+      <span id="toggleText">Don't have an account?</span>
+      <a href="#" id="toggleFormLink">Sign Up</a>
+    </p>
+  </form>
+  
+  <!-- JAVASCRIPT FOR FUNCTIONALITY -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get element references
+      const introText = document.querySelector('.intro-text');
+      const loginBtn = document.getElementById('loginBtn');
+      const signupBtn = document.getElementById('signupBtn');
+      const authForm = document.getElementById('authForm');
+      const overlay = document.getElementById('overlay');
+      const headerButtons = document.querySelector('.header-buttons');
+      const formTitle = document.getElementById('formTitle');
+      const submitButton = document.getElementById('submitButton');
+      const toggleText = document.getElementById('toggleText');
+      const toggleFormLink = document.getElementById('toggleFormLink');
+      const username = document.getElementById('username');
+      const password = document.getElementById('password');
+      const confirmPassword = document.getElementById('confirmPassword');
+      const authMessage = document.getElementById('auth-message');
+
+      // Show Login form
+      loginBtn.addEventListener('click', function() {
+        authForm.classList.remove('signup');
+        formTitle.textContent = "Login Here";
+        submitButton.textContent = "Log In";
+        toggleText.textContent = "Don't have an account?";
+        toggleFormLink.textContent = "Sign Up";
+        authForm.style.display = 'block';
+        overlay.style.display = 'block';
+        headerButtons.style.display = 'none';
+        introText.style.display = 'none';
+        authMessage.textContent = '';
+        authMessage.className = 'message';
+      });
+
+      // Show Sign Up form
+      signupBtn.addEventListener('click', function() {
+        authForm.classList.add('signup');
+        formTitle.textContent = "Sign Up Here";
+        submitButton.textContent = "Sign Up";
+        toggleText.textContent = "Already have an account?";
+        toggleFormLink.textContent = "Log In";
+        authForm.style.display = 'block';
+        overlay.style.display = 'block';
+        headerButtons.style.display = 'none';
+        introText.style.display = 'none';
+        authMessage.textContent = '';
+        authMessage.className = 'message';
+      });
+
+      // Hide form when clicking overlay
+      overlay.addEventListener('click', function() {
+        authForm.style.display = 'none';
+        overlay.style.display = 'none';
+        headerButtons.style.display = 'flex';
+        introText.style.display = 'block';
+      });
+
+      // Toggle password visibility for main password
+      const togglePassword = document.getElementById('togglePassword');
+      togglePassword.addEventListener('click', function () {
+        let currentType = password.getAttribute('type');
+        let newType = currentType === 'password' ? 'text' : 'password';
+        password.setAttribute('type', newType);
+        if(newType === 'text'){
+          this.classList.remove('fa-eye');
+          this.classList.add('fa-eye-slash');
+        } else {
+          this.classList.remove('fa-eye-slash');
+          this.classList.add('fa-eye');
+        }
+      });
+
+      // Toggle password visibility for confirm password
+      const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+      if(toggleConfirmPassword) {
+        toggleConfirmPassword.addEventListener('click', function () {
+          let currentType = confirmPassword.getAttribute('type');
+          let newType = currentType === 'password' ? 'text' : 'password';
+          confirmPassword.setAttribute('type', newType);
+          if(newType === 'text'){
+            this.classList.remove('fa-eye');
+            this.classList.add('fa-eye-slash');
+          } else {
+            this.classList.remove('fa-eye-slash');
+            this.classList.add('fa-eye');
+          }
+        });
+      }
+
+      // Toggle between Login and Sign Up modes
+      toggleFormLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        authForm.classList.toggle('signup');
+        if(authForm.classList.contains('signup')) {
+          formTitle.textContent = "Sign Up Here";
+          submitButton.textContent = "Sign Up";
+          toggleText.textContent = "Already have an account?";
+          toggleFormLink.textContent = "Log In";
+        } else {
+          formTitle.textContent = "Login Here";
+          submitButton.textContent = "Log In";
+          toggleText.textContent = "Don't have an account?";
+          toggleFormLink.textContent = "Sign Up";
+        }
+        authMessage.textContent = '';
+        authMessage.className = 'message';
+      });
+
+      // Handle form submission - Login or Register
+      submitButton.addEventListener('click', function() {
+        // Basic validation
+        if (!username.value || !password.value) {
+          authMessage.textContent = 'Please fill in all required fields.';
+          authMessage.className = 'message error';
+          return;
+        }
+
+        // If in signup mode
+        if (authForm.classList.contains('signup')) {
+          if (!confirmPassword.value) {
+            authMessage.textContent = 'Please confirm your password.';
+            authMessage.className = 'message error';
+            return;
+          }
+          if (password.value !== confirmPassword.value) {
+            authMessage.textContent = 'Passwords do not match.';
+            authMessage.className = 'message error';
+            return;
+          }
+          
+          // Register function call
+          registerUser(username.value, password.value);
+        } else {
+          // Login function call
+          loginUser(username.value, password.value);
+        }
+      });
+
+      // Login function
+      function loginUser(username, password) {
+        fetch("/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            authMessage.textContent = 'Login successful! Redirecting...';
+            authMessage.className = 'message success';
+            setTimeout(() => {
+              window.location.href = "/dashboard";
+            }, 0);
+          } else {
+            authMessage.textContent = data.message || 'Login failed. Please check your credentials.';
+            authMessage.className = 'message error';
+          }
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          authMessage.textContent = 'An error occurred. Please try again later.';
+          authMessage.className = 'message error';
+        });
+      }
+
+      // Register function
+      function registerUser(username, password) {
+        fetch("/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            username, 
+            password,
+            confirmPassword: confirmPassword.value 
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            authMessage.textContent = 'Registration successful! Redirecting...';
+            authMessage.className = 'message success';
+            setTimeout(() => {
+              window.location.href = "/dashboard";
+            }, 1500);
+          } else {
+            authMessage.textContent = data.message || 'Registration failed. Please try again.';
+            authMessage.className = 'message error';
+          }
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          authMessage.textContent = 'An error occurred. Please try again later.';
+          authMessage.className = 'message error';
+        });
+      }
+    });
+  </script>
+  
+  <!-- SVG filter for gooey effect -->
+  <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="display: none;">
+    <defs>
+      <filter id="goo">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+        <feColorMatrix in="blur" mode="matrix"
+          values="1 0 0 0 0  
+                  0 1 0 0 0  
+                  0 0 1 0 0  
+                  0 0 0 20 -10" result="goo" />
+        <feBlend in="SourceGraphic" in2="goo" />
+      </filter>
+    </defs>
+  </svg>
+</body>
+</html>

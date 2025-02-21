@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Themed Layout with Header & Profile Dropdown</title>
+    <style>
+      /* Load Aurora Pro for the logo */
+      @font-face {
+        font-family: 'Aurora Pro';
+        src: url('AuroraPro-Regular.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      /* Ensure consistent sizing */
+      * {
+        box-sizing: border-box;
+      }
+      /* Global Styles & Background */
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        background: rgb(101,74,91);
+        background: linear-gradient(
+          90deg,
+          rgba(101,74,91,1) 0%,
+          rgba(144,97,101,1) 25%,
+          rgba(202,123,116,1) 50%,
+          rgba(216,138,120,1) 75%,
+          rgba(229,147,125,1) 100%
+        );
+        font-family: Arial, sans-serif;
+      }
+      /* Header Styles */
+      header {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 100;
+      }
+      .logo {
+        font-family: 'Aurora Pro', sans-serif;
+        font-size: 24px;
+        color: #e08e69;
+      }
+      .header-right {
+        position: relative;
+        overflow: visible; /* allow profile icon to be fully visible */
+      }
+      /* Updated Profile Icon */
+      .profile-icon {
+        width: 40px;
+        height: 40px;
+        background: #e08e69; /* theme color */
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.3s ease, background 0.3s ease;
+      }
+      .profile-icon svg {
+        width: 24px;
+        height: 24px;
+        fill: #fff; /* white icon for contrast */
+      }
+      .profile-icon:hover {
+        transform: scale(1.1);
+        background: #d07962; /* slightly altered on hover */
+      }
+      /* Updated Dropdown */
+      .profile-dropdown {
+        position: absolute;
+        top: 50px;
+        right: 0;
+        background: rgba(0, 0, 0, 0.8); /* dark, semi-transparent */
+        color: #fff;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        display: none;
+        flex-direction: column;
+        min-width: 150px;
+      }
+      .profile-dropdown p {
+        margin: 0.5rem 0;
+        font-size: 0.9rem;
+      }
+      /* Main Container & Layout */
+      .main-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 6rem 1rem 1rem; /* extra top padding to avoid the header */
+      }
+      .card-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+      }
+      .card-container {
+        /* Container for each card */
+      }
+      .text-gap {
+        max-width: 300px;
+        color: #fff;
+        text-align: center;
+        font-size: 1rem;
+      }
+      .bottom-text {
+        color: #fff;
+        text-align: left;
+        font-size: 1.2rem;
+        margin: 0 2rem;
+      }
+      /* Card Styling & Animation */
+      .card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 28px;
+        max-width: 340px;
+        border-radius: 30px;
+        background: #fff;
+        box-shadow: 0px 0px 14px 0px rgba(192, 192, 192, 0.2);
+        transition: 1s all;
+        overflow: hidden;
+      }
+      .card::after {
+        content: "";
+        position: absolute;
+        bottom: -30%;
+        right: -30%;
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(45deg, #654a5b, #ca7b74, #e5937d);
+        filter: blur(70px);
+        border-radius: 50%;
+        transition: width 1s, height 1s;
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        bottom: -160%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 0;
+        height: 0;
+        background: linear-gradient(45deg, #654a5b, #ca7b74, #e5937d);
+        filter: blur(70px);
+        border-radius: 50%;
+        transition: width 1s, height 1s;
+      }
+      .card:hover::before {
+        bottom: -230%;
+        width: 1000px;
+        height: 1000px;
+        filter: blur(1px);
+      }
+      .containers {
+        position: relative;
+      }
+      .icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 56px;
+        height: 56px;
+        border-radius: 6px;
+        background: #e5f6eb;
+      }
+      .card:hover .icon {
+        background: linear-gradient(45deg, #654a5b, #ca7b74, #e5937d);
+        transition: 1s all;
+      }
+      .card:hover .icon svg,
+      .card:hover .linkMore svg {
+        filter: brightness(0) invert(1);
+        transition: 1s all;
+      }
+      .title {
+        color: #171d29;
+        font-size: 26px;
+        font-weight: 500;
+        white-space: nowrap;
+        transition: 1s all;
+        margin: 1rem 0;
+      }
+      .subtitle {
+        color: #7e8882;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 22px;
+        transition: 1s all;
+      }
+      .linkMore {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: #654a5b;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 22px;
+        text-decoration: none;
+        transition: 1s all;
+        margin-top: 1rem;
+      }
+      .card:hover .title,
+      .card:hover .subtitle,
+      .card:hover .linkMore {
+        color: #fff;
+        transition: 1s all;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <div class="logo">SEVEN SINS</div>
+      <div class="header-right">
+        <div class="profile-icon">
+          <!-- User Icon SVG with updated fill -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+          </svg>
+        </div>
+        <div class="profile-dropdown">
+          <p><strong>John Doe</strong></p>
+          <p>john@example.com</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-container">
+      <div class="card-row">
+        <!-- Left Card -->
+        <div class="card-container">
+          <div class="card">
+            <div class="containers">
+              <div class="icon">
+                <svg
+                  width="28"
+                  height="29"
+                  viewBox="0 0 28 29"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M23.7222 9.04435V6.71102C23.7222 5.42235 22.6775 4.37769 21.3888 4.37769L6.61106 4.37769C5.32239 4.37769 4.27773 5.42235 4.27773 6.71102V9.04435C4.27773 10.333 5.32239 11.3777 6.61106 11.3777H21.3888C22.6775 11.3777 23.7222 10.333 23.7222 9.04435Z"
+                    stroke="#ca7b74"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                  <path
+                    d="M23.7222 21.4888V19.1555C23.7222 17.8668 22.6775 16.8221 21.3888 16.8221H15.9444C14.6557 16.8221 13.6111 17.8668 13.6111 19.1555V21.4888C13.6111 22.7775 14.6557 23.8221 15.9444 23.8221H21.3888C22.6775 23.8221 23.7222 22.7775 23.7222 21.4888Z"
+                    stroke="#ca7b74"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+              </div>
+              <div class="title">HOST YOUR EVENTS</div>
+              <div class="subtitle">
+                Host seamless events with ease! Set up, manage, and track your event effortlessly with AI-powered security and real-time attendee insights.
+              </div>
+              <div class="linkMore">
+                CREATE EVENT
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 18 19"
+                  height="19"
+                  width="18"
+                >
+                  <path
+                    stroke="#654a5b"
+                    fill="#654a5b"
+                    d="M3 9.09985C3 9.23792 2.88807 9.34985 2.75 9.34985C2.61193 9.34985 2.5 9.23792 2.5 9.09985C2.5 8.96178 2.61193 8.84985 2.75 8.84985C2.88807 8.84985 3 8.96178 3 9.09985Z"
+                  ></path>
+                  <path
+                    stroke="#654a5b"
+                    fill="#654a5b"
+                    d="M9.25 2.84985C9.25 2.98792 9.13807 3.09985 9 3.09985C8.86193 3.09985 8.75 2.98792 8.75 2.84985C8.75 2.71178 8.86193 2.59985 9 2.59985C9.13807 2.59985 9.25 2.71178 9.25 2.84985Z"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Gap for Text Between Cards -->
+        <div class="text-gap">
+          <p>"Host your next big event with ease or join exciting experiences!."</p>
+        </div>
+        <!-- Right Card -->
+        <div class="card-container">
+          <div class="card">
+            <div class="containers">
+              <div class="icon">
+                <svg
+                  width="28"
+                  height="29"
+                  viewBox="0 0 28 29"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M23.7222 9.04435V6.71102C23.7222 5.42235 22.6775 4.37769 21.3888 4.37769L6.61106 4.37769C5.32239 4.37769 4.27773 5.42235 4.27773 6.71102V9.04435C4.27773 10.333 5.32239 11.3777 6.61106 11.3777H21.3888C22.6775 11.3777 23.7222 10.333 23.7222 9.04435Z"
+                    stroke="#ca7b74"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                  <path
+                    d="M23.7222 21.4888V19.1555C23.7222 17.8668 22.6775 16.8221 21.3888 16.8221H15.9444C14.6557 16.8221 13.6111 17.8668 13.6111 19.1555V21.4888C13.6111 22.7775 14.6557 23.8221 15.9444 23.8221H21.3888C22.6775 23.8221 23.7222 22.7775 23.7222 21.4888Z"
+                    stroke="#ca7b74"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+              </div>
+              <div class="title">JOIN AN EVENT</div>
+              <div class="subtitle">
+                Get instant access to amazing events! Secure your spot with AI-verified tickets and enjoy a smooth, hassle-free entry experience.
+              </div>
+              <div class="linkMore">
+                JOIN EVENT
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 18 19"
+                  height="19"
+                  width="18"
+                >
+                  <path
+                    stroke="#654a5b"
+                    fill="#654a5b"
+                    d="M3 9.09985C3 9.23792 2.88807 9.34985 2.75 9.34985C2.61193 9.34985 2.5 9.23792 2.5 9.09985C2.5 8.96178 2.61193 8.84985 2.75 8.84985C2.88807 8.84985 3 8.96178 3 9.09985Z"
+                  ></path>
+                  <path
+                    stroke="#654a5b"
+                    fill="#654a5b"
+                    d="M9.25 2.84985C9.25 2.98792 9.13807 3.09985 9 3.09985C8.86193 3.09985 8.75 2.98792 8.75 2.84985C8.75 2.71178 8.86193 2.59985 9 2.59985C9.13807 2.59985 9.25 2.71178 9.25 2.84985Z"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript to Toggle the Profile Dropdown -->
+    <script>
+      const profileIcon = document.querySelector(".profile-icon");
+      const profileDropdown = document.querySelector(".profile-dropdown");
+      profileIcon.addEventListener("click", function (event) {
+        event.stopPropagation();
+        profileDropdown.style.display =
+          profileDropdown.style.display === "flex" ? "none" : "flex";
+      });
+      document.addEventListener("click", function () {
+        profileDropdown.style.display = "none";
+      });
+    </script>
+  </body>
+</html>

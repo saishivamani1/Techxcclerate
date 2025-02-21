@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB Flask App</title>
+    <script>
+        async function addDocument() {
+            const data = { name: document.getElementById("name").value };
+            const response = await fetch("/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            alert(result.message);
+        }
+
+        async function getDocuments() {
+            const response = await fetch("/get");
+            const documents = await response.json();
+            document.getElementById("output").innerHTML = JSON.stringify(documents, null, 2);
+        }
+    </script>
+</head>
+<body>
+    <h1>MongoDB Flask App</h1>
+    
+    <h2>Add Document</h2>
+    <input type="text" id="name" placeholder="Enter name">
+    <button onclick="addDocument()">Add</button>
+    
+    <h2>Retrieve Documents</h2>
+    <button onclick="getDocuments()">Get Data</button>
+    <pre id="output"></pre>
+</body>
+</html>
